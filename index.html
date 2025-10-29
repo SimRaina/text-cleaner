@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Text Cleaner – Free Online Text Formatter</title>
+  <meta name="description" content="Clean, format, and fix messy text online. Remove line breaks, spaces, HTML tags, and more in one click.">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 flex flex-col items-center min-h-screen p-6">
+  <header class="w-full max-w-3xl text-center mb-8">
+    <h1 class="text-3xl font-bold mb-2">🧹 Text Cleaner</h1>
+    <p class="text-gray-600">Clean and format your text easily — remove line breaks, spaces, HTML tags, and more.</p>
+  </header>
+
+  <main class="w-full max-w-3xl bg-white rounded-2xl shadow p-6">
+    <!-- Input Area -->
+    <label class="block text-sm font-semibold mb-2">Input Text:</label>
+    <textarea id="inputText" class="w-full h-48 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Paste your messy text here..."></textarea>
+
+    <!-- Options -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-5">
+      <label><input type="checkbox" id="removeSpaces" class="mr-2">Remove extra spaces</label>
+      <label><input type="checkbox" id="removeBreaks" class="mr-2">Remove line breaks</label>
+      <label><input type="checkbox" id="removeHTML" class="mr-2">Remove HTML tags</label>
+      <label><input type="checkbox" id="lowercase" class="mr-2">Convert to lowercase</label>
+      <label><input type="checkbox" id="uppercase" class="mr-2">Convert to UPPERCASE</label>
+      <label><input type="checkbox" id="titlecase" class="mr-2">Convert to Title Case</label>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex flex-wrap gap-3 mt-6">
+      <button id="cleanBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Clean Text</button>
+      <button id="resetBtn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Reset</button>
+      <button id="copyBtn" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Copy Output</button>
+    </div>
+
+    <!-- Output Area -->
+    <div class="mt-6">
+      <label class="block text-sm font-semibold mb-2">Output Text:</label>
+      <textarea id="outputText" class="w-full h-48 p-3 border rounded-lg bg-gray-50 focus:outline-none" readonly></textarea>
+    </div>
+
+    <!-- Stats -->
+    <div class="flex justify-between text-sm text-gray-600 mt-3">
+      <p id="wordCount">Words: 0</p>
+      <p id="charCount">Characters: 0</p>
+    </div>
+  </main>
+
+  <footer class="mt-10 text-gray-500 text-sm">
+    © <span id="year"></span> Text Cleaner | Built by You 🚀
+  </footer>
+
+  <script>
+    const inputText = document.getElementById('inputText');
+    const outputText = document.getElementById('outputText');
+    const wordCount = document.getElementById('wordCount');
+    const charCount = document.getElementById('charCount');
+    const year = document.getElementById('year');
+    year.textContent = new Date().getFullYear();
+
+    // Update counters live
+    inputText.addEventListener('input', () => {
+      const text = inputText.value.trim();
+      const words = text.length ? text.split(/\s+/).length : 0;
+      wordCount.textContent = `Words: ${words}`;
+      charCount.textContent = `Characters: ${text.length}`;
+    });
+
+    // Clean text logic
+    document.getElementById('cleanBtn').addEventListener('click', () => {
+      let text = inputText.value;
+
+      if (document.getElementById('removeHTML').checked)
+        text = text.replace(/<[^>]*>/g, '');
+      if (document.getElementById('removeSpaces').checked)
+        text = text.replace(/\s+/g, ' ').trim();
+      if (document.getElementById('removeBreaks').checked)
+        text = text.replace(/[\r\n]+/g, ' ');
+      if (document.getElementById('lowercase').checked)
+        text = text.toLowerCase();
+      if (document.getElementById('uppercase').checked)
+        text = text.toUpperCase();
+      if (document.getElementById('titlecase').checked)
+        text = text.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+
+      outputText.value = text;
+    });
+
+    // Reset fields
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      inputText.value = '';
+      outputText.value = '';
+      wordCount.textContent = 'Words: 0';
+      charCount.textContent = 'Characters: 0';
+    });
+
+    // Copy output
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(outputText.value);
+      alert('Output copied to clipboard!');
+    });
+  </script>
+</body>
+</html>
