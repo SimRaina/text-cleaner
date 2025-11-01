@@ -19,6 +19,11 @@
     <label class="block text-sm font-semibold mb-2">Upload Text File:</label>
     <input type="file" id="fileInput" accept=".txt,.html,.csv" class="mb-4 border p-2 rounded-lg">
 
+	<!-- Progress bar -->
+	<div id="progressContainer" class="w-full bg-gray-200 rounded-full h-3 hidden mb-4">
+		<div id="progressBar" class="bg-blue-500 h-3 rounded-full" style="width: 0%;"></div>
+	</div>
+
     <!-- Input Text -->
     <label class="block text-sm font-semibold mb-2">Input Text:</label>
     <textarea id="inputText" class="w-full h-48 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Paste or upload your text here..."></textarea>
@@ -117,26 +122,51 @@
       link.click();
     });
 
-    // Upload text file with size limit
-	document.getElementById('fileInput').addEventListener('change', function(e) {
-	const file = e.target.files[0];
-	if (!file) return;
+    // Upload text file with size limit and progress bar
+	const fileInput = document.getElementById('fileInput');
+	const progressContainer = document.getElementById('progressContainer');
+	const progressBar = document.getElementById('progressBar');
 
-	// Set file size limit (in bytes) → 2 MB = 2 * 1024 * 1024
-	const maxSize = 2 * 1024 * 1024;
-	if (file.size > maxSize) {
-		alert('File is too large! Please upload a file smaller than 2 MB.');
-		e.target.value = ''; // reset the file input
+	fileInput.addEventListener('change', function(e) {
+		const file = e.target.files[0];
+		if (!file) return;
+
+		const maxSize = 2 * 1024 * 1024; // 2 MB
+		if (file.size > maxSize) {
+			alert('File is too large! Please upload a file smaller than 2 MB.');
+		e.target.value = '';
 		return;
-	}
+		}
 
-	const reader = new FileReader();
-	reader.onload = function(evt) {
-    inputText.value = evt.target.result;
-    inputText.dispatchEvent(new Event('input'));
+		const reader = new FileReader();
+
+		// Show progress bar
+		progressContainer.classList.remove('hidden');
+		progressBar.style.width = '0%';
+
+		// Update progress visually
+		reader.onprogress = function(evt) {
+		if (evt.lengthComputable) {
+		const percent = Math.round((evt.loaded / evt.total) * 100);
+		progressBar.style.width = percent + '%';
+		}
 	};
-	reader.readAsText(file);
-	});
+
+	// When finished reading
+	reader.onload = function(evt) {
+		inputText.value = evt.target.result;
+		inputText.dispatchEvent(new Event('input'));
+		progressBar.style.width = '100%';
+
+		// Hide progress bar after short delay
+		setTimeout(() => {
+		progressContainer.classList.add('hidden');
+		progressBar.style.width = '0%';
+		}, 600);
+	};
+
+  reader.readAsText(file);
+});
   </script>
 </body>
 </html>
