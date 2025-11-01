@@ -117,19 +117,26 @@
       link.click();
     });
 
-    // Upload text file
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
+    // Upload text file with size limit
+	document.getElementById('fileInput').addEventListener('change', function(e) {
+	const file = e.target.files[0];
+	if (!file) return;
 
-      reader.onload = function(evt) {
-        inputText.value = evt.target.result;
-        inputText.dispatchEvent(new Event('input'));
-      };
+	// Set file size limit (in bytes) → 2 MB = 2 * 1024 * 1024
+	const maxSize = 2 * 1024 * 1024;
+	if (file.size > maxSize) {
+		alert('File is too large! Please upload a file smaller than 2 MB.');
+		e.target.value = ''; // reset the file input
+		return;
+	}
 
-      reader.readAsText(file);
-    });
+	const reader = new FileReader();
+	reader.onload = function(evt) {
+    inputText.value = evt.target.result;
+    inputText.dispatchEvent(new Event('input'));
+	};
+	reader.readAsText(file);
+	});
   </script>
 </body>
 </html>
