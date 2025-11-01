@@ -6,27 +6,41 @@
   <title>Text Cleaner – Free Online Text Formatter</title>
   <meta name="description" content="Clean, format, and fix messy text online. Remove line breaks, spaces, HTML tags, and more in one click.">
   <link rel="icon" type="image/png" href="favicon.png">
+
+  <!-- Tailwind with Dark Mode -->
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 flex flex-col items-center min-h-screen p-6">
+
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 flex flex-col items-center min-h-screen p-6 transition-colors duration-300">
   <header class="w-full max-w-3xl text-center mb-8">
     <h1 class="text-3xl font-bold mb-2">🧹 Text Cleaner</h1>
-    <p class="text-gray-600">Clean and format your text easily — remove line breaks, spaces, HTML tags, and more.</p>
+    <p class="text-gray-600 dark:text-gray-300">Clean and format your text easily — remove line breaks, spaces, HTML tags, and more.</p>
+
+    <!-- Dark Mode Toggle -->
+    <div class="flex justify-center mt-3">
+      <button id="themeToggle"
+        class="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">
+        🌙 Dark Mode
+      </button>
+    </div>
   </header>
 
-  <main class="w-full max-w-3xl bg-white rounded-2xl shadow p-6">
+  <main class="w-full max-w-3xl bg-white dark:bg-gray-800 rounded-2xl shadow p-6 transition-colors duration-300">
     <!-- Upload Section -->
     <label class="block text-sm font-semibold mb-2">Upload Text File:</label>
-    <input type="file" id="fileInput" accept=".txt,.html,.csv" class="mb-4 border p-2 rounded-lg">
+    <input type="file" id="fileInput" accept=".txt,.html,.csv" class="mb-4 border p-2 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
 
-	<!-- Progress bar -->
-	<div id="progressContainer" class="w-full bg-gray-200 rounded-full h-3 hidden mb-4">
-		<div id="progressBar" class="bg-blue-500 h-3 rounded-full" style="width: 0%;"></div>
-	</div>
+    <!-- Progress bar -->
+    <div id="progressContainer" class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 hidden mb-4">
+      <div id="progressBar" class="bg-blue-500 h-3 rounded-full" style="width: 0%;"></div>
+    </div>
 
     <!-- Input Text -->
     <label class="block text-sm font-semibold mb-2">Input Text:</label>
-    <textarea id="inputText" class="w-full h-48 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Paste or upload your text here..."></textarea>
+    <textarea id="inputText" class="w-full h-48 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder="Paste or upload your text here..."></textarea>
 
     <!-- Cleaning Options -->
     <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-5">
@@ -41,7 +55,7 @@
     <!-- Buttons -->
     <div class="flex flex-wrap gap-3 mt-6">
       <button id="cleanBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Clean Text</button>
-      <button id="resetBtn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Reset</button>
+      <button id="resetBtn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-100 dark:hover:bg-gray-500">Reset</button>
       <button id="copyBtn" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Copy Output</button>
       <button id="downloadBtn" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">Download Cleaned</button>
     </div>
@@ -49,17 +63,17 @@
     <!-- Output -->
     <div class="mt-6">
       <label class="block text-sm font-semibold mb-2">Output Text:</label>
-      <textarea id="outputText" class="w-full h-48 p-3 border rounded-lg bg-gray-50 focus:outline-none" readonly></textarea>
+      <textarea id="outputText" class="w-full h-48 p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 focus:outline-none" readonly></textarea>
     </div>
 
     <!-- Counters -->
-    <div class="flex justify-between text-sm text-gray-600 mt-3">
+    <div class="flex justify-between text-sm text-gray-600 dark:text-gray-300 mt-3">
       <p id="wordCount">Words: 0</p>
       <p id="charCount">Characters: 0</p>
     </div>
   </main>
 
-  <footer class="mt-10 text-gray-500 text-sm">
+  <footer class="mt-10 text-gray-500 dark:text-gray-400 text-sm">
     © <span id="year"></span> Text Cleaner | Built by You 🚀
   </footer>
 
@@ -122,51 +136,62 @@
       link.click();
     });
 
-    // Upload text file with size limit and progress bar
-	const fileInput = document.getElementById('fileInput');
-	const progressContainer = document.getElementById('progressContainer');
-	const progressBar = document.getElementById('progressBar');
+    // Upload text file with progress + size limit
+    const fileInput = document.getElementById('fileInput');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
 
-	fileInput.addEventListener('change', function(e) {
-		const file = e.target.files[0];
-		if (!file) return;
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
 
-		const maxSize = 2 * 1024 * 1024; // 2 MB
-		if (file.size > maxSize) {
-			alert('File is too large! Please upload a file smaller than 2 MB.');
-		e.target.value = '';
-		return;
-		}
+      const maxSize = 2 * 1024 * 1024; // 2 MB
+      if (file.size > maxSize) {
+        alert('File is too large! Please upload a file smaller than 2 MB.');
+        e.target.value = '';
+        return;
+      }
 
-		const reader = new FileReader();
+      const reader = new FileReader();
+      progressContainer.classList.remove('hidden');
+      progressBar.style.width = '0%';
 
-		// Show progress bar
-		progressContainer.classList.remove('hidden');
-		progressBar.style.width = '0%';
+      reader.onprogress = function(evt) {
+        if (evt.lengthComputable) {
+          const percent = Math.round((evt.loaded / evt.total) * 100);
+          progressBar.style.width = percent + '%';
+        }
+      };
 
-		// Update progress visually
-		reader.onprogress = function(evt) {
-		if (evt.lengthComputable) {
-		const percent = Math.round((evt.loaded / evt.total) * 100);
-		progressBar.style.width = percent + '%';
-		}
-	};
+      reader.onload = function(evt) {
+        inputText.value = evt.target.result;
+        inputText.dispatchEvent(new Event('input'));
+        progressBar.style.width = '100%';
+        setTimeout(() => {
+          progressContainer.classList.add('hidden');
+          progressBar.style.width = '0%';
+        }, 600);
+      };
 
-	// When finished reading
-	reader.onload = function(evt) {
-		inputText.value = evt.target.result;
-		inputText.dispatchEvent(new Event('input'));
-		progressBar.style.width = '100%';
+      reader.readAsText(file);
+    });
 
-		// Hide progress bar after short delay
-		setTimeout(() => {
-		progressContainer.classList.add('hidden');
-		progressBar.style.width = '0%';
-		}, 600);
-	};
+    // 🌙 Dark mode toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
 
-  reader.readAsText(file);
-});
+    // Load saved preference
+    if (localStorage.theme === 'dark') {
+      body.classList.add('dark');
+      themeToggle.textContent = '☀️ Light Mode';
+    }
+
+    // Toggle dark/light
+    themeToggle.addEventListener('click', () => {
+      const isDark = body.classList.toggle('dark');
+      themeToggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+      localStorage.theme = isDark ? 'dark' : 'light';
+    });
   </script>
 </body>
 </html>
