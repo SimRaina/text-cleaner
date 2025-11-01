@@ -15,9 +15,15 @@
   </header>
 
   <main class="w-full max-w-3xl bg-white rounded-2xl shadow p-6">
-    <label class="block text-sm font-semibold mb-2">Input Text:</label>
-    <textarea id="inputText" class="w-full h-48 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Paste your messy text here..."></textarea>
+    <!-- Upload Section -->
+    <label class="block text-sm font-semibold mb-2">Upload Text File:</label>
+    <input type="file" id="fileInput" accept=".txt,.html,.csv" class="mb-4 border p-2 rounded-lg">
 
+    <!-- Input Text -->
+    <label class="block text-sm font-semibold mb-2">Input Text:</label>
+    <textarea id="inputText" class="w-full h-48 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Paste or upload your text here..."></textarea>
+
+    <!-- Cleaning Options -->
     <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-5">
       <label><input type="checkbox" id="removeSpaces" class="mr-2">Remove extra spaces</label>
       <label><input type="checkbox" id="removeBreaks" class="mr-2">Remove line breaks</label>
@@ -27,17 +33,21 @@
       <label><input type="checkbox" id="titlecase" class="mr-2">Convert to Title Case</label>
     </div>
 
+    <!-- Buttons -->
     <div class="flex flex-wrap gap-3 mt-6">
       <button id="cleanBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Clean Text</button>
       <button id="resetBtn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Reset</button>
       <button id="copyBtn" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Copy Output</button>
+      <button id="downloadBtn" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">Download Cleaned</button>
     </div>
 
+    <!-- Output -->
     <div class="mt-6">
       <label class="block text-sm font-semibold mb-2">Output Text:</label>
       <textarea id="outputText" class="w-full h-48 p-3 border rounded-lg bg-gray-50 focus:outline-none" readonly></textarea>
     </div>
 
+    <!-- Counters -->
     <div class="flex justify-between text-sm text-gray-600 mt-3">
       <p id="wordCount">Words: 0</p>
       <p id="charCount">Characters: 0</p>
@@ -56,6 +66,7 @@
     const year = document.getElementById('year');
     year.textContent = new Date().getFullYear();
 
+    // Word/char counter
     inputText.addEventListener('input', () => {
       const text = inputText.value.trim();
       const words = text.length ? text.split(/\s+/).length : 0;
@@ -63,6 +74,7 @@
       charCount.textContent = `Characters: ${text.length}`;
     });
 
+    // Clean button
     document.getElementById('cleanBtn').addEventListener('click', () => {
       let text = inputText.value;
 
@@ -82,6 +94,7 @@
       outputText.value = text;
     });
 
+    // Reset button
     document.getElementById('resetBtn').addEventListener('click', () => {
       inputText.value = '';
       outputText.value = '';
@@ -89,9 +102,33 @@
       charCount.textContent = 'Characters: 0';
     });
 
+    // Copy button
     document.getElementById('copyBtn').addEventListener('click', () => {
       navigator.clipboard.writeText(outputText.value);
       alert('Output copied to clipboard!');
+    });
+
+    // Download button
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const blob = new Blob([outputText.value], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'cleaned_text.txt';
+      link.click();
+    });
+
+    // Upload text file
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+
+      reader.onload = function(evt) {
+        inputText.value = evt.target.result;
+        inputText.dispatchEvent(new Event('input'));
+      };
+
+      reader.readAsText(file);
     });
   </script>
 </body>
